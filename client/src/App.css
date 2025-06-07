@@ -1,0 +1,30 @@
+.top{
+    display:flex;
+    justify-content: center;
+}
+*{
+    font-size: large;
+      font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
+}
+button{
+    border:2px solid greenyellow;
+    background-color: darkorange;
+}
+.second{
+    padding:200px;
+    border:2px solid gold;
+    background-color: antiquewhite;
+}
+.link{
+    color:blueviolet
+}
+form{
+    padding:20px;
+}
+
+input{
+    margin:20px;
+    border:2px solid orchid;
+    background-color: azure;
+    border-radius: 18px;
+}
