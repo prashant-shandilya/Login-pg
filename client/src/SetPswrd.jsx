@@ -25,7 +25,7 @@ console.log(email);
     }
 
             return(
-                <div>
+                <div className='top'>
                     <div>
                         {/* <p>Hey we are building here.</p> */}
                         <br></br>
@@ -33,7 +33,7 @@ console.log(email);
                         <form onSubmit={handleSubmit}>
 
                             <div>
-          <strong>Password: </strong>
+          <strong>Password: </strong><br/>
           <input
             type="password"
              placeholder="Enter Password"

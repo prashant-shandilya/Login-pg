@@ -7,16 +7,19 @@
       font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
 }
 button{
-    border:2px solid greenyellow;
-    background-color: darkorange;
+    width:400px;
+    height:60px;
+    background-color:#90ee90;
+    border-radius:10px;
 }
 .second{
-    padding:200px;
-    border:2px solid gold;
-    background-color: antiquewhite;
+    background-color: white;
 }
 .link{
-    color:blueviolet
+    color:white;
+    background-color:blue;
+    width:400px;
+    height:60px;
 }
 form{
     padding:20px;
@@ -24,7 +27,8 @@ form{
 
 input{
     margin:20px;
-    border:2px solid orchid;
-    background-color: azure;
-    border-radius: 18px;
+    background-color: white;
+    width:400px;
+    height:60px;
+    border-radius:10px;
 }

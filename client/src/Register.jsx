@@ -26,7 +26,7 @@ import { useNavigate } from 'react-router-dom';
         <div className='second'>
         <form onSubmit={handleSubmit}>
         <div>
-          <strong>Name: </strong>
+          <strong>Name: </strong><br/>
           <input 
             type = "text"
             placeholder = "Enter Name"
@@ -36,16 +36,17 @@ import { useNavigate } from 'react-router-dom';
 
         </div>
         <div>
-          <strong>Email: </strong>
+          <strong>Email: </strong><br/>
           <input
             type="email"
             placeholder="Enter Email"
             name="email"
              onChange={(e) => setEmail(e.target.value)}
             />
+            
         </div>
         <div>
-          <strong>Password: </strong>
+          <strong>Password: </strong><br/>
           <input
             type="password"
              placeholder="Enter Password"
@@ -53,11 +54,12 @@ import { useNavigate } from 'react-router-dom';
               onChange={(e) => setPassword(e.target.value)}
             />
         </div>
-      <button type="submit">Register</button>
+      <button type="submit" style={{color:'white'}}>Register</button>
        </form>
+       <div >
       <p>Already have an account</p>
-      <Link to="/login" className='link'>Login</Link>
-
+      <button style={{backgroundColor:'#4169e1'}}><Link to="/login" style={{color:'white'}}>Login</Link></button>
+        </div>
       </div>
        
 

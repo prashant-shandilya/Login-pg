@@ -21,9 +21,10 @@ function Forgot(){
 
 
     return(
+      <div className='top'>
          <form onSubmit={handleSubmit}>
            <div>
-          <strong>Email: </strong>
+          <strong>Email: </strong><br/>
           <input
             type="email"
             placeholder="Enter Email"
@@ -37,7 +38,7 @@ function Forgot(){
         </div>
          <button type="submit">Submit</button>
         </form>
-
+      </div>
     )
 
 

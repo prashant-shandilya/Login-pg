@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {useState} from "react";
 import axios from 'axios';
+import './App.css'
 import { useNavigate } from 'react-router-dom';
 
 function Login(){
@@ -17,7 +18,7 @@ function Login(){
 // console.log(name,email,password);
       axios.post('http://127.0.0.1:3001/login',{email,password}).then(result=> {console.log(result)
             if(result.data === 'Success')
-                        navigate('/home')
+                        {localStorage.setItem("email",email);navigate('/home')}
             else if (result.data === "navigate to setPswrd"){localStorage.setItem("email",email);navigate('/setPswrd')}
             else if (result.data === "the password is incorrect")setFlg(true);
 
@@ -27,10 +28,10 @@ function Login(){
 
 return (
 
-    <div>
+    <div className='top' style={{height:'500px'}}>
         <form onSubmit={handleSubmit}>
         <div>
-          <strong>Email: </strong>
+          <strong>Email: </strong><br/>
           <input
             type="email"
             placeholder="Enter Email"
@@ -39,7 +40,7 @@ return (
             />
         </div>
         <div>
-          <strong>Password: </strong>
+          <strong>Password: </strong><br/>
           <input
             type="password"
              placeholder="Enter Password"
@@ -48,9 +49,9 @@ return (
             />
             <p style={{color:'red',fontSize:'20px'}}>{flg&&msg}</p>
         </div>
-      <button type="submit">Login</button>
+      <button type="submit">Login</button><br/><br/>
+      <button style={{backgroundColor:'yellow'}}><Link to="/forgot">Forgot password </Link></button>
        </form>
-       <Link to="/forgot">Forgot password </Link>
        </div>
     
 );
