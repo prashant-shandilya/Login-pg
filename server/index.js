@@ -5,6 +5,9 @@ const bcrypt = require('bcrypt')
 const nodemailer = require("nodemailer");
 const EmployeeModel = require('./models/employee')
 var random = require('random-string-generator');
+const jwt = require('jsonwebtoken');
+const axios = require('axios');
+const JWT_SECRET = "22kh4i3kj"
 
 const app = express()
 app.use(express.json())
@@ -12,7 +15,69 @@ app.use(cors())
 
 mongoose.connect("mongodb://127.0.0.1:27017/hello")
 
-app.post('/getInfo', async (req,res) =>{
+function verifyToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Format: Bearer <token>
+
+  if (!token) return res.status(401).json({ msg: 'Token not found' });
+
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
+    if (err) return res.status(403).json({ msg: 'Token invalid' });
+
+    req.user = decoded; // Store user info
+    next();
+  });
+}
+
+app.get('/outh_page', (req, res) => {
+  const link = `https://accounts.google.com/o/oauth2/v2/auth?` +
+    `client_id=468979056259-r25p6vqnqvkgd2hlkgl2j7t3nm34uffc.apps.googleusercontent.com` +
+    `&redirect_uri=http://localhost:5173/outhcallback` +
+    `&response_type=code` +
+    `&scope=openid%20email%20profile`;
+
+   return res.send(link);
+  // res.send("hello world");
+
+})
+
+app.post('/outhcallback', async (req, res) => {
+  const code = req.body.code;
+
+   const tokenResponse = await axios.post(
+      'https://oauth2.googleapis.com/token',
+      {
+        code,
+        client_id:"xyz",
+        client_secret:"xyz",
+        redirect_uri:"http://localhost:5173/outhcallback",
+        grant_type: 'authorization_code'
+      },
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+
+     const { access_token, id_token } = tokenResponse.data;
+
+
+
+    const userInfo = await axios.get(
+      `https://www.googleapis.com/oauth2/v2/userinfo`,
+      { headers: { Authorization: `Bearer ${access_token}` } }
+    );
+
+
+    res.send(`
+      <h2>Welcome ${userInfo.data.name}</h2>
+      <p>Email: ${userInfo.data.email}</p>
+      <img src="${userInfo.data.picture}" />
+    `);
+  
+
+
+
+});
+
+app.post('/getInfo', verifyToken, async (req,res) =>{
 
     // console.log(req.body.email)
 
@@ -20,18 +85,19 @@ app.post('/getInfo', async (req,res) =>{
 
     if(!user)return res.json("No user found !")
 
-    // console.log(user)
+    console.log(req.user);
 
     const obj = {
         name:user.name,
         email:user.email,
         pass:user.password
     }
+
     return res.json(obj);
 
 })
 
-app.post('/setPassword',async (req,res) =>{
+app.post('/setPassword', async (req,res) =>{
     const pass1 = req.body.pass;
     const mail = req.body.email;
 
@@ -51,6 +117,7 @@ app.post('/setPassword',async (req,res) =>{
 
 app.post('/login',(req,res)=>{
     const {email,password} = req.body;
+    let myUser;
     EmployeeModel.findOne({email:email})
     .then(async (user)=> {
         if(user){
@@ -61,7 +128,13 @@ app.post('/login',(req,res)=>{
                       if(user.isTempPasswordUsed){
                             return res.json("navigate to setPswrd");
                         }
-                   return res.json("Success")
+                     const token = jwt.sign(
+    {email: user.email },
+    JWT_SECRET,
+    { expiresIn: '1h' } // Token valid for 1 hour
+  );
+
+    return res.json({msg:"Success",token})
                 }
                     else
                        return  res.json("the password is incorrect")
@@ -70,6 +143,8 @@ app.post('/login',(req,res)=>{
             res.json("no record existed");
         }
     })
+
+  
     
 })
 
@@ -117,6 +192,8 @@ transporter.sendMail(mailOptions, (error, info) => {
 
     res.json({ msg: "Password changed! check your email" });
 })
+
+
 
 app.post('/register', async (req,res)=>{
 
