@@ -15,10 +15,10 @@ function Login(){
 
      const handleSubmit=(e) =>{
       e.preventDefault();
-// console.log(name,email,password);
+
       axios.post('http://127.0.0.1:3001/login',{email,password}).then(result=> {console.log(result)
-            if(result.data === 'Success')
-                        {localStorage.setItem("email",email);navigate('/home')}
+            if(result.data.msg === 'Success')
+                        {localStorage.setItem("email",email);localStorage.setItem("token",result.data.token);navigate('/home')}
             else if (result.data === "navigate to setPswrd"){localStorage.setItem("email",email);navigate('/setPswrd')}
             else if (result.data === "the password is incorrect")setFlg(true);
 
