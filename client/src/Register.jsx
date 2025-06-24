@@ -10,7 +10,17 @@ import { useNavigate } from 'react-router-dom';
     const [name,setName] = useState()
     const [email,setEmail] = useState()
     const [password,setPassword] = useState() 
+    const [link,setLink] = useState();
     const navigate = useNavigate();
+
+    const handleClick = async (e) => {
+      e.preventDefault();
+      
+     await axios.get('http://127.0.0.1:3001/outh_page').then(url => setLink(url.data))
+
+      window.open(link);
+
+      };
 
     const handleSubmit=(e) =>{
       e.preventDefault();
@@ -56,6 +66,10 @@ import { useNavigate } from 'react-router-dom';
         </div>
       <button type="submit" style={{color:'white'}}>Register</button>
        </form>
+      <button onClick={handleClick}>
+          Signup with Google
+          <img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="google logo" style={{width:'20px',height:'20px'}}/>
+        </button>
        <div >
       <p>Already have an account</p>
       <button style={{backgroundColor:'#4169e1'}}><Link to="/login" style={{color:'white'}}>Login</Link></button>
