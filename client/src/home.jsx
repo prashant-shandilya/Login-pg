@@ -16,7 +16,11 @@ function Home(){
 
   useEffect(() => {
     if (!email) return;
-    axios.post('http://127.0.0.1:3001/getInfo', { email })
+    axios.post('http://127.0.0.1:3001/getInfo', { email }, {
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("token")}` // from login response
+  }
+})
       .then(result => {console.log(result.data);setName(result.data.name)})
       .catch(err => console.log(err));
       
