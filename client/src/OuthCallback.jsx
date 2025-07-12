@@ -27,6 +27,7 @@ function OuthCallback (){
     return(
         <div>
             <h2>Outh Callback</h2>
+            <p><br>This feature will not work as I have not provided the client key and secret in the backend.So tada</br></p>
             <p>{data}</p>
         </div>
     );
