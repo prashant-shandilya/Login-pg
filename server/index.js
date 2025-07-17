@@ -79,22 +79,46 @@ app.post('/outhcallback', async (req, res) => {
 
 app.post('/getInfo', verifyToken, async (req,res) =>{
 
-    // console.log(req.body.email)
-
     const user = await EmployeeModel.findOne({ email: req.body.email });
 
     if(!user)return res.json("No user found !")
 
-    console.log(req.user);
-
     const obj = {
         name:user.name,
         email:user.email,
-        pass:user.password
+        pass:user.password,
+        address:user.Address,
     }
+
+    // console.log(obj);
 
     return res.json(obj);
 
+})
+
+app.post('/addAddress', verifyToken, async (req,res) =>{
+    const { email, address } = req.body;
+
+    try {
+        const user = await EmployeeModel.findOne({ email: email });
+
+        if(!user) {
+            return res.status(404).json({ msg: "No user found!" });
+        }
+
+        // Add the new address to the existing addresses array
+        user.Address.push(address);
+        await user.save();
+
+        return res.json({ 
+            msg: "Address added successfully!", 
+            addresses: user.Address 
+        });
+
+    } catch (error) {
+        console.error("Error adding address:", error);
+        return res.status(500).json({ msg: "Error adding address" });
+    }
 })
 
 app.post('/setPassword', async (req,res) =>{

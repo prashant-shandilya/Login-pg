@@ -4,7 +4,8 @@ const EmployeeSchema = new mongoose.Schema ({
     name:String,
     email:String,
     password:String,
-    isTempPasswordUsed:Boolean
+    isTempPasswordUsed:Boolean,
+    Address:[String]
 })
 
 const EmployeeModel = mongoose.model("employees",EmployeeSchema)
