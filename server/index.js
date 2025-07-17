@@ -121,6 +121,38 @@ app.post('/addAddress', verifyToken, async (req,res) =>{
     }
 })
 
+app.put('/updateAddress', verifyToken, async (req,res) =>{
+    const { email, oldAddress, newAddress } = req.body;
+
+    try {
+        const user = await EmployeeModel.findOne({ email: email });
+
+        if(!user) {
+            return res.status(404).json({ msg: "No user found!" });
+        }
+
+        // Find the index of the old address in the array
+        const addressIndex = user.Address.indexOf(oldAddress);
+        
+        if(addressIndex === -1) {
+            return res.status(404).json({ msg: "Address not found!" });
+        }
+
+        // Update the address at the found index
+        user.Address[addressIndex] = newAddress;
+        await user.save();
+
+        return res.json({ 
+            msg: "Address updated successfully!", 
+            addresses: user.Address 
+        });
+
+    } catch (error) {
+        console.error("Error updating address:", error);
+        return res.status(500).json({ msg: "Error updating address" });
+    }
+})
+
 app.post('/setPassword', async (req,res) =>{
     const pass1 = req.body.pass;
     const mail = req.body.email;
