@@ -4,6 +4,7 @@ const cors = require("cors")
 const bcrypt = require('bcrypt')
 const nodemailer = require("nodemailer");
 const EmployeeModel = require('./models/employee')
+const AddressModel = require('./models/Address')
 var random = require('random-string-generator');
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
@@ -77,81 +78,64 @@ app.post('/outhcallback', async (req, res) => {
 
 });
 
-app.post('/getInfo', verifyToken, async (req,res) =>{
-
-    const user = await EmployeeModel.findOne({ email: req.body.email });
-
-    if(!user)return res.json("No user found !")
-
+app.post('/getInfo', verifyToken, async (req, res) => {
+    const user = await EmployeeModel.findOne({ email: req.body.email }).populate('addresses');
+    if (!user) return res.json("No user found !");
     const obj = {
-        name:user.name,
-        email:user.email,
-        pass:user.password,
-        address:user.Address,
-    }
-
-    // console.log(obj);
-
+        name: user.name,
+        email: user.email,
+        pass: user.password,
+        address: user.addresses, // now an array of Address objects
+    };
     return res.json(obj);
+});
 
-})
-
-app.post('/addAddress', verifyToken, async (req,res) =>{
+app.post('/addAddress', verifyToken, async (req, res) => {
     const { email, address } = req.body;
-
+    // address should be an object: { name, addressline1, addressline2, postCode, city, country }
     try {
         const user = await EmployeeModel.findOne({ email: email });
-
-        if(!user) {
+        if (!user) {
             return res.status(404).json({ msg: "No user found!" });
         }
-
-        // Add the new address to the existing addresses array
-        user.Address.push(address);
+        const newAddress = await AddressModel.create(address);
+        user.addresses.push(newAddress._id);
         await user.save();
-
-        return res.json({ 
-            msg: "Address added successfully!", 
-            addresses: user.Address 
+        await user.populate('addresses');
+        return res.json({
+            msg: "Address added successfully!",
+            addresses: user.addresses
         });
-
     } catch (error) {
         console.error("Error adding address:", error);
         return res.status(500).json({ msg: "Error adding address" });
     }
-})
+});
 
-app.put('/updateAddress', verifyToken, async (req,res) =>{
-    const { email, oldAddress, newAddress } = req.body;
-
+app.put('/updateAddress', verifyToken, async (req, res) => {
+    const { email, addressId, updatedAddress } = req.body;
+    // updatedAddress: { name, addressline1, addressline2, postCode, city, country }
     try {
         const user = await EmployeeModel.findOne({ email: email });
-
-        if(!user) {
+        if (!user) {
             return res.status(404).json({ msg: "No user found!" });
         }
-
-        // Find the index of the old address in the array
-        const addressIndex = user.Address.indexOf(oldAddress);
-        
-        if(addressIndex === -1) {
+        const address = await AddressModel.findById(addressId);
+        if (!address) {
             return res.status(404).json({ msg: "Address not found!" });
         }
-
-        // Update the address at the found index
-        user.Address[addressIndex] = newAddress;
-        await user.save();
-
-        return res.json({ 
-            msg: "Address updated successfully!", 
-            addresses: user.Address 
+        Object.assign(address, updatedAddress);
+        await address.save();
+        await user.populate('addresses');
+        return res.json({
+            msg: "Address updated successfully!",
+            addresses: user.addresses
         });
-
     } catch (error) {
         console.error("Error updating address:", error);
         return res.status(500).json({ msg: "Error updating address" });
     }
-})
+});
 
 app.post('/setPassword', async (req,res) =>{
     const pass1 = req.body.pass;
@@ -251,19 +235,15 @@ transporter.sendMail(mailOptions, (error, info) => {
 
 
 
-app.post('/register', async (req,res)=>{
-
-    // EmployeeModel.findOne({email:req.body.email}).then(user=>{
-    //     res.json("The email is already taken.")
-    // })
+app.post('/register', async (req, res) => {
     const pass = req.body.password;
-
-    const hash = await bcrypt.hash(pass,10);
-
+    const hash = await bcrypt.hash(pass, 10);
     req.body.password = hash;
-
-    EmployeeModel.create(req.body).then(employees => res.json(employees)).catch(err => res.json(err))
-})
+    if (!req.body.addresses) req.body.addresses = [];
+    EmployeeModel.create(req.body)
+        .then(employees => res.json(employees))
+        .catch(err => res.json(err))
+});
 
 
 app.listen(3001, () => {
